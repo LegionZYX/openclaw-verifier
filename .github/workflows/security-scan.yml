@@ -1,0 +1,52 @@
+# GitHub Actions 集成
+
+name: OpenClaw Skill Security Scan
+
+on:
+  push:
+    paths:
+      - 'skills/**'
+      - 'SKILL.md'
+  pull_request:
+    paths:
+      - 'skills/**'
+      - 'SKILL.md'
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install OpenClaw Verifier
+        run: |
+          pip install openclaw-verifier
+      
+      - name: Scan Skills
+        run: |
+          openclaw-verifier batch ./skills --output scan-results.json
+      
+      - name: Check Results
+        run: |
+          # 如果发现严重问题，失败
+          if grep -q '"risk": "CRITICAL"' scan-results.json; then
+            echo "❌ Critical security issues found!"
+            exit 1
+          fi
+          
+          if grep -q '"risk": "HIGH"' scan-results.json; then
+            echo "⚠️ High risk issues found. Review scan-results.json"
+          fi
+          
+          echo "✅ Security scan passed"
+      
+      - name: Upload Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-scan-results
+          path: scan-results.json
