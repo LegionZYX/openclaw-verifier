@@ -1,4 +1,5 @@
-﻿__pycache__/
+﻿# Python
+__pycache__/
 *.py[cod]
 *.class
 *.so
@@ -18,11 +19,27 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+
+# Virtual environments
 .env
 .venv
 env/
 venv/
 ENV/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
 .DS_Store
-*.json
-!requirements.txt
+Thumbs.db
+
+# Project specific
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.log
