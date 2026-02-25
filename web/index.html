@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OpenClaw Verifier</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+        
+        .subtitle {
+            color: #64748b;
+            font-size: 1.1rem;
+        }
+        
+        .upload-section {
+            background: #1e293b;
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 2px dashed #334155;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        
+        .upload-section:hover {
+            border-color: #3b82f6;
+        }
+        
+        .upload-section.dragover {
+            border-color: #3b82f6;
+            background: #1e293b;
+        }
+        
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .upload-text {
+            color: #94a3b8;
+            margin-bottom: 1rem;
+        }
+        
+        input[type="file"] {
+            display: none;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .results-section {
+            display: none;
+        }
+        
+        .results-section.visible {
+            display: block;
+        }
+        
+        .score-card {
+            background: #1e293b;
+            border-radius: 1rem;
+            padding: 2rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .score-value {
+            font-size: 5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        
+        .score-value.low { color: #22c55e; }
+        .score-value.medium { color: #eab308; }
+        .score-value.high { color: #f97316; }
+        .score-value.critical { color: #ef4444; }
+        
+        .risk-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        
+        .risk-badge.low { background: #166534; }
+        .risk-badge.medium { background: #854d0e; }
+        .risk-badge.high { background: #9a3412; }
+        .risk-badge.critical { background: #991b1b; }
+        
+        .issues-section {
+            background: #1e293b;
+            border-radius: 1rem;
+            padding: 2rem;
+        }
+        
+        .issues-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .issues-list {
+            list-style: none;
+        }
+        
+        .issue-item {
+            background: #0f172a;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid;
+        }
+        
+        .issue-item.critical { border-color: #ef4444; }
+        .issue-item.high { border-color: #f97316; }
+        .issue-item.medium { border-color: #eab308; }
+        .issue-item.low { border-color: #22c55e; }
+        
+        .issue-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+        
+        .issue-severity {
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+        }
+        
+        .issue-severity.critical { color: #ef4444; }
+        .issue-severity.high { color: #f97316; }
+        .issue-severity.medium { color: #eab308; }
+        .issue-severity.low { color: #22c55e; }
+        
+        .issue-description {
+            color: #94a3b8;
+            margin-bottom: 0.5rem;
+        }
+        
+        .issue-meta {
+            font-size: 0.85rem;
+            color: #64748b;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        .loading.visible {
+            display: block;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid #334155;
+            border-top-color: #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>OpenClaw Verifier</h1>
+            <p class="subtitle">Secure your OpenClaw skills before installation</p>
+        </header>
+        
+        <div class="upload-section" id="dropZone">
+            <div class="upload-icon">📁</div>
+            <p class="upload-text">Drop your skill folder here or click to upload</p>
+            <input type="file" id="fileInput" webkitdirectory>
+            <button class="btn" onclick="document.getElementById('fileInput').click()">
+                Select Skill Folder
+            </button>
+        </div>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Scanning skill...</p>
+        </div>
+        
+        <div class="results-section" id="results">
+            <div class="score-card">
+                <div class="score-value" id="scoreValue">--</div>
+                <div class="risk-badge" id="riskBadge">--</div>
+                <p id="scanInfo" style="margin-top: 1rem; color: #64748b;"></p>
+            </div>
+            
+            <div class="issues-section">
+                <div class="issues-header">
+                    <h2>Issues Found</h2>
+                    <span id="issueCount">0 issues</span>
+                </div>
+                <ul class="issues-list" id="issuesList">
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const loading = document.getElementById('loading');
+        const results = document.getElementById('results');
+        
+        // Drag and drop
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+        
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
+        
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                scanFiles(files);
+            }
+        });
+        
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                scanFiles(e.target.files);
+            }
+        });
+        
+        function scanFiles(files) {
+            loading.classList.add('visible');
+            results.classList.remove('visible');
+            
+            // Simulate scanning (in production, this would call the API)
+            setTimeout(() => {
+                const mockResults = {
+                    score: 75,
+                    riskLevel: 'MEDIUM',
+                    filesScanned: 3,
+                    issues: [
+                        {
+                            severity: 'high',
+                            category: 'external_api',
+                            description: 'External API calls detected',
+                            file: 'SKILL.md',
+                            line: 15
+                        },
+                        {
+                            severity: 'medium',
+                            category: 'file_access',
+                            description: 'File system access outside memory/',
+                            file: 'script.py',
+                            line: 42
+                        }
+                    ]
+                };
+                
+                displayResults(mockResults);
+            }, 2000);
+        }
+        
+        function displayResults(data) {
+            loading.classList.remove('visible');
+            results.classList.add('visible');
+            
+            // Score
+            const scoreValue = document.getElementById('scoreValue');
+            scoreValue.textContent = data.score;
+            scoreValue.className = 'score-value ' + data.riskLevel.toLowerCase();
+            
+            // Risk badge
+            const riskBadge = document.getElementById('riskBadge');
+            riskBadge.textContent = data.riskLevel + ' RISK';
+            riskBadge.className = 'risk-badge ' + data.riskLevel.toLowerCase();
+            
+            // Scan info
+            document.getElementById('scanInfo').textContent = 
+                `${data.filesScanned} files scanned`;
+            
+            // Issues
+            const issuesList = document.getElementById('issuesList');
+            issuesList.innerHTML = '';
+            
+            data.issues.forEach(issue => {
+                const li = document.createElement('li');
+                li.className = 'issue-item ' + issue.severity;
+                li.innerHTML = `
+                    <div class="issue-header">
+                        <span class="issue-severity ${issue.severity}">${issue.severity}</span>
+                        <span>${issue.category}</span>
+                    </div>
+                    <div class="issue-description">${issue.description}</div>
+                    <div class="issue-meta">File: ${issue.file} | Line: ${issue.line}</div>
+                `;
+                issuesList.appendChild(li);
+            });
+            
+            document.getElementById('issueCount').textContent = 
+                `${data.issues.length} issues`;
+        }
+    </script>
+</body>
+</html>
