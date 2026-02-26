@@ -1,11 +1,11 @@
-﻿from setuptools import setup, find_packages
+from setuptools import setup, find_packages
 
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setup(
     name="openclaw-verifier",
-    version="0.1.0",
+    version="0.2.0",
     author="OpenClaw Verifier Team",
     author_email="openclaw-verifier@example.com",
     description="Security verification tool for OpenClaw Skills",
@@ -33,3 +33,4 @@ setup(
         ],
     },
 )
+
