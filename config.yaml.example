@@ -1,0 +1,61 @@
+# OpenClaw Verifier 配置文件
+# 复制此文件为 config.yaml 并填入你的 API Keys
+
+# 当前使用的模型
+# 可选: local, gpt-4, gpt-4o, claude, qwen, qwen-coding, deepseek
+current_model: qwen-coding
+
+# 模型配置
+models:
+  # 本地模式（无 AI）
+  local:
+    enabled: true
+  
+  # OpenAI GPT-4
+  gpt-4:
+    enabled: false
+    api_key: ${OPENAI_API_KEY}
+    api_base: https://api.openai.com/v1
+  
+  # OpenAI GPT-4o
+  gpt-4o:
+    enabled: false
+    api_key: ${OPENAI_API_KEY}
+    api_base: https://api.openai.com/v1
+  
+  # Anthropic Claude
+  claude:
+    enabled: false
+    api_key: ${ANTHROPIC_API_KEY}
+    api_base: https://api.anthropic.com/v1
+  
+  # 阿里千问
+  qwen:
+    enabled: false
+    api_key: ${DASHSCOPE_API_KEY}
+    api_base: https://dashscope.aliyuncs.com/api/v1
+    model: qwen-max
+  
+  # 千问 Coding Plan
+  qwen-coding:
+    enabled: true
+    api_key: ${DASHSCOPE_API_KEY}
+    api_base: https://dashscope.aliyuncs.com/api/v1
+    model: qwen-coder-plus
+  
+  # DeepSeek
+  deepseek:
+    enabled: false
+    api_key: ${DEEPSEEK_API_KEY}
+    api_base: https://api.deepseek.com/v1
+
+# 扫描配置
+scan:
+  # 最大文件大小 (KB)
+  max_file_size: 100
+  
+  # 是否使用 AI 分析
+  use_ai: true
+  
+  # 输出格式: text, json, html
+  output_format: text
